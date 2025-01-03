@@ -50,15 +50,15 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2  # Gunakan PHP versi 8.2
+          php-version: 8.2
           extensions: mysqli
 
-      - name: Debug Directories
+      - name: Wait for MySQL to be ready
         run: |
-          echo "Current directory:"
-          pwd
-          echo "List of files:"
-          ls -la
+          echo "Waiting for MySQL..."
+          while ! mysqladmin ping -h 127.0.0.1 --silent; do
+            sleep 1
+          done
 
       - name: Update Dependencies
         run: |
