@@ -5,6 +5,11 @@ on:
     branches:
       - Tes
   pull_request:
+<<<<<<< HEAD
+=======
+    branches:
+      - '*'
+>>>>>>> f9ba7d5e60ef2b2b54908166acdb03ccdbb398b5
 
 jobs:
   build:
@@ -15,11 +20,46 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+<<<<<<< HEAD
       - name: Build Docker Containers
         run: docker-compose up -d --build
 
   test:
     name: Test Stage
+=======
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install Docker Compose
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name')
+          sudo curl -L "https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Validate Dockerfile
+        run: |
+          if [ ! -f Dockerfile ]; then echo "Dockerfile not found!"; exit 1; fi
+
+      - name: Build Docker Image
+        run: |
+          docker build -t my-app:latest .
+
+      - name: Run Unit Tests
+        run: |
+          docker-compose -f docker-compose.yml up --abort-on-container-exit || exit 1
+          docker-compose logs > test-logs.txt
+          cat test-logs.txt
+
+      - name: Run Bandit Security Scan
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install bandit
+          bandit -r . --severity-level high || exit 1
+
+  deploy:
+>>>>>>> f9ba7d5e60ef2b2b54908166acdb03ccdbb398b5
     runs-on: ubuntu-latest
 
     services:
@@ -34,6 +74,7 @@ jobs:
           - 3306:3306
 
     steps:
+<<<<<<< HEAD
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -48,3 +89,9 @@ jobs:
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit --configuration phpunit.xml
+=======
+      - name: Deploy to Staging
+        run: |
+          docker-compose -f docker-compose.staging.yml down || true
+          docker-compose -f docker-compose.staging.yml up -d || (echo "Deploy failed! Rolling back..." && docker-compose -f docker-compose.staging.yml down && exit 1)
+>>>>>>> f9ba7d5e60ef2b2b54908166acdb03ccdbb398b5
