@@ -50,7 +50,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.2
+          php-version: 8.2  # Gunakan PHP versi 8.2
           extensions: mysqli
 
       - name: Debug Directories
@@ -60,13 +60,22 @@ jobs:
           echo "List of files:"
           ls -la
 
+      - name: Update Dependencies
+        run: |
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          composer update
+
       - name: Install Dependencies
         run: |
-          cd TugasCRUD  # Pindah ke direktori tempat composer.json berada
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
           composer install
+
+      - name: Set PHPUnit Permissions
+        run: |
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          chmod +x vendor/bin/phpunit
 
       - name: Run PHPUnit
         run: |
-          cd TugasCRUD  # Pindah ke direktori tempat phpunit.xml berada
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
           vendor/bin/phpunit --configuration phpunit.xml
-
