@@ -7,8 +7,7 @@ on:
   pull_request:
     branches:
       - '*'
-  workflow_dispatch: # New Trigger for workflow manually
-
+  workflow_dispatch: # Trigger workflow manually new
 
 jobs:
   build:
