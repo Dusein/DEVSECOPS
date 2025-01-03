@@ -18,14 +18,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Instal Docker Compose
       - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
           docker-compose --version
 
-      # Build dan Jalankan Docker Containers
       - name: Build Docker Containers
         run: docker-compose up -d --build
 
@@ -54,8 +52,18 @@ jobs:
           php-version: 8.1
           extensions: mysqli
 
+      - name: Check Current Directory
+        run: pwd
+
+      - name: List Files
+        run: ls -la
+
       - name: Install Dependencies
-        run: composer install
+        run: |
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          composer install
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit --configuration phpunit.xml
+        run: |
+          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          vendor/bin/phpunit --configuration phpunit.xml
