@@ -53,10 +53,16 @@ jobs:
           php-version: 8.2
           extensions: mysqli
 
+      - name: Fetch MySQL Container Logs
+        run: |
+          echo "Fetching MySQL container logs..."
+          docker ps
+          docker logs $(docker ps -q --filter ancestor=mysql:8.0) || echo "No logs available for MySQL container."
+
       - name: Wait for MySQL to be ready
         run: |
           echo "Waiting for MySQL..."
-          for i in {1..60}; do  # Tunggu hingga 60 detik
+          for i in {1..120}; do
             if mysqladmin ping -h 127.0.0.1 --silent; then
               echo "MySQL is ready!"
               break
@@ -65,42 +71,18 @@ jobs:
             sleep 1
           done
           if ! mysqladmin ping -h 127.0.0.1 --silent; then
-            echo "MySQL failed to start within 60 seconds."
+            echo "MySQL failed to start within 120 seconds."
             exit 1
           fi
-
-      - name: Check MySQL Logs
-        run: |
-          echo "Fetching MySQL container logs..."
-          docker ps  # Menampilkan container yang berjalan
-          docker logs $(docker ps -q --filter ancestor=mysql:8.0) || echo "No logs available for MySQL container."
 
       - name: Test MySQL Connection
         run: |
           echo "Testing MySQL connection..."
           mysql -h 127.0.0.1 -u root -prootpassword -e "SHOW DATABASES;"
 
-      - name: Verify Database Exists
+      - name: Debug Docker Containers
         run: |
-          echo "Checking if database 'db_mahasiswa' exists..."
-          mysql -h 127.0.0.1 -u root -prootpassword -e "USE db_mahasiswa; SHOW TABLES;"
-
-      - name: Update Dependencies
-        run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
-          composer update
-
-      - name: Install Dependencies
-        run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
-          composer install
-
-      - name: Set PHPUnit Permissions
-        run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
-          chmod +x vendor/bin/phpunit
-
-      - name: Run PHPUnit
-        run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
-          vendor/bin/phpunit --configuration phpunit.xml --debug
+          echo "Listing running containers..."
+          docker ps -a
+          echo "Inspecting MySQL container..."
+          docker inspect $(docker ps -q --filter ancestor=mysql:8.0)
