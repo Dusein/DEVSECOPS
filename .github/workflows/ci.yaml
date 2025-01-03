@@ -30,6 +30,7 @@ jobs:
   test:
     name: Test Stage
     runs-on: ubuntu-latest
+    needs: build
 
     services:
       mysql:
@@ -52,18 +53,20 @@ jobs:
           php-version: 8.1
           extensions: mysqli
 
-      - name: Check Current Directory
-        run: pwd
-
-      - name: List Files
-        run: ls -la
+      - name: Debug Directories
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List of files:"
+          ls -la
 
       - name: Install Dependencies
         run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          cd TugasCRUD  # Pindah ke direktori tempat composer.json berada
           composer install
 
       - name: Run PHPUnit
         run: |
-          cd TugasCRUD  # Pindah ke direktori proyek Anda
+          cd TugasCRUD  # Pindah ke direktori tempat phpunit.xml berada
           vendor/bin/phpunit --configuration phpunit.xml
+
