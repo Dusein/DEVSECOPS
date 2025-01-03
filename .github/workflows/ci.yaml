@@ -56,9 +56,34 @@ jobs:
       - name: Wait for MySQL to be ready
         run: |
           echo "Waiting for MySQL..."
-          while ! mysqladmin ping -h 127.0.0.1 --silent; do
+          for i in {1..60}; do  # Tunggu hingga 60 detik
+            if mysqladmin ping -h 127.0.0.1 --silent; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "MySQL is not ready yet. Retrying in 1 second..."
             sleep 1
           done
+          if ! mysqladmin ping -h 127.0.0.1 --silent; then
+            echo "MySQL failed to start within 60 seconds."
+            exit 1
+          fi
+
+      - name: Check MySQL Logs
+        run: |
+          echo "Fetching MySQL container logs..."
+          docker ps  # Menampilkan container yang berjalan
+          docker logs $(docker ps -q --filter ancestor=mysql:8.0) || echo "No logs available for MySQL container."
+
+      - name: Test MySQL Connection
+        run: |
+          echo "Testing MySQL connection..."
+          mysql -h 127.0.0.1 -u root -prootpassword -e "SHOW DATABASES;"
+
+      - name: Verify Database Exists
+        run: |
+          echo "Checking if database 'db_mahasiswa' exists..."
+          mysql -h 127.0.0.1 -u root -prootpassword -e "USE db_mahasiswa; SHOW TABLES;"
 
       - name: Update Dependencies
         run: |
@@ -78,4 +103,4 @@ jobs:
       - name: Run PHPUnit
         run: |
           cd TugasCRUD  # Pindah ke direktori proyek Anda
-          vendor/bin/phpunit --configuration phpunit.xml
+          vendor/bin/phpunit --configuration phpunit.xml --debug
