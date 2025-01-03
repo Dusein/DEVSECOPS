@@ -7,8 +7,8 @@ on:
   pull_request:
     branches:
       - '*'
-  workflow_dispatch: # Trigger workflow manually new
-
+  workflow_dispatch: 
+# Trigger workflow manually new
 jobs:
   build:
     name: Build Stage
