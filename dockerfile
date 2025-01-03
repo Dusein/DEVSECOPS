@@ -1,15 +1,20 @@
-# Gunakan image PHP dengan Apache
-FROM php:8.1-apache
+# Use the official PHP image with Apache
+FROM php:8.2-apache
 
-# Salin semua file dari folder TugasCRUD ke direktori /var/www/html di dalam container
-COPY TugasCRUD/ /var/www/html
+# Set the working directory
+WORKDIR /var/www/html
 
-# Install ekstensi PHP untuk MySQL
-RUN docker-php-ext-install mysqli
+# Copy the application code into the container
+COPY ./TugasCRUD /var/www/html
 
-# Memberikan izin pada file dan folder aplikasi
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+# Install required PHP extensions
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-# Ekspos port 80 agar bisa diakses dari luar container
+# Provide appropriate permissions for the Apache server
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
+# Expose port 80 for Apache
 EXPOSE 80
+
+# Start the Apache server
+CMD ["apache2-foreground"]
